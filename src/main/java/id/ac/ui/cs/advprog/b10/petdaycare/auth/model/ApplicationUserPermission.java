@@ -1,15 +1,29 @@
 package id.ac.ui.cs.advprog.b10.petdaycare.auth.model;
 
 public enum ApplicationUserPermission {
-    MEDICINE_READ("medicine:read"),
-    MEDICINE_CREATE("medicine:create"),
-    MEDICINE_UPDATE("medicine:update"),
-    MEDICINE_DELETE("medicine:delete"),
-    ORDER_READ_ALL("order:read_all"),
-    ORDER_READ_SELF("order:read_self"),
-    ORDER_CREATE("order:create"),
-    ORDER_UPDATE("order:update"),
-    ORDER_DELETE("order:delete");
+    VERIFICATION_CREATE("verification:create"),
+    VERIFICATION_READ_ALL("verification:read_all"),
+    VERIFICATION_READ_SELF("verification:read_self"),
+    VERIFICATION_UPDATE("verification:update"),
+    VERIFICATION_DELETE("verification:delete"),
+
+    TOPUP_CREATE("topup:create"),
+    TOPUP_READ_ALL("topup:read_all"),
+    TOPUP_READ_SELF("topup:read_self"),
+    TOPUP_UPDATE("topup:update"),
+    TOPUP_DELETE("topup:delete"),
+
+    PENITIPAN_CREATE("penitipan:create"),
+    PENITIPAN_READ_ALL("penitipan:read_all"),
+    PENITIPAN_READ_SELF("penitipan:read_self"),
+    PENITIPAN_UPDATE("penitipan:update"),
+    PENITIPAN_DELETE("penitipan:delete"),
+
+    PENGAMBILAN_CREATE("pengambilan:create"),
+    PENGAMBILAN_READ_ALL("pengambilan:read_all"),
+    PENGAMBILAN_READ_SELF("pengambilan:read_self"),
+    PENGAMBILAN_UPDATE("pengambilan:update"),
+    PENGAMBILAN_DELETE("pengambilan:delete");
 
     private final String permission;
 
