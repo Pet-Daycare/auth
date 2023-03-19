@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.0.4"
 	id("io.spring.dependency-management") version "1.1.0"
+	id("org.sonarqube") version "3.0"
 }
 
 group = "id.ac.ui.cs.advprog.b10.petdaycare"
