@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.advice;
 
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.ErrorTemplate;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UserAlreadyExistException;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UsernameAlreadyExistException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.time.ZonedDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+
     @ExceptionHandler(value = {UserAlreadyExistException.class})
     public ResponseEntity<Object> userExist() {
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
@@ -29,6 +31,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(baseException, badRequest);
     }
 
+    @ExceptionHandler(value = {UsernameAlreadyExistException.class})
+    public ResponseEntity<Object> usernameExist() {
+        HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+        ErrorTemplate baseException = new ErrorTemplate(
+                "User with the same username already exist",
+                badRequest,
+                ZonedDateTime.now(ZoneId.of("Z"))
+        );
+
+        return new ResponseEntity<>(baseException, badRequest);
+    }
 
     @ExceptionHandler(value = {JwtException.class, AuthenticationException.class, UsernameNotFoundException.class})
     public ResponseEntity<Object> credentialsError(Exception exception) {

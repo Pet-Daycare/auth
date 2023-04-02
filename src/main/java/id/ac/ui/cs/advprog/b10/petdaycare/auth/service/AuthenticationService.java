@@ -6,6 +6,7 @@ import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationRequest;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationResponse;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.RegisterRequest;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UserAlreadyExistException;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UsernameAlreadyExistException;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.User;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +35,15 @@ public class AuthenticationService {
             throw new UserAlreadyExistException();
         }
 
+        checkUser = userRepository.findByUsername(request.getUsername()).orElse(null);
+        if(checkUser != null) {
+            throw new UsernameAlreadyExistException();
+        }
+
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
+                .username(request.getUsername())
                 .active(true)
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -49,13 +56,14 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
+                        request.getUsername(),
                         request.getPassword()
                 )
         );
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwtToken).build();
     }

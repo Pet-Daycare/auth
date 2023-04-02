@@ -28,6 +28,8 @@ public class User implements UserDetails {
     private String lastname;
 
     private String password;
+    private String username;
+
 
     @Column(unique=true)
     private String email;
@@ -56,7 +58,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override
