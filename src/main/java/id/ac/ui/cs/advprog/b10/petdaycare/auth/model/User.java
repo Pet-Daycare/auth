@@ -42,6 +42,11 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Pet> pets;
 
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "petwallet_id", referencedColumnName = "id")
+    private PetWallet petWallet;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if(role.equals("ADMIN")) {
@@ -60,6 +65,8 @@ public class User implements UserDetails {
     public String getUsername() {
         return username;
     }
+
+    public PetWallet getPetWallet() {return this.petWallet;}
 
     @Override
     public boolean isAccountNonExpired() {
