@@ -7,6 +7,7 @@ import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationResponse;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.RegisterRequest;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UserAlreadyExistException;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UsernameAlreadyExistException;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.PetWallet;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.User;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -48,8 +49,8 @@ public class AuthenticationService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
+                .petWallet(new PetWallet())
                 .build();
-
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwtToken).build();
