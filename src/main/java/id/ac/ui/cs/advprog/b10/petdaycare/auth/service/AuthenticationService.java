@@ -74,9 +74,6 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
         authManager.registerNewToken(jwtToken, request.getUsername());
 
-        var cookie = AuthenticationController.createCookie("token", jwtToken);
-        response.addCookie(cookie);
-
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 

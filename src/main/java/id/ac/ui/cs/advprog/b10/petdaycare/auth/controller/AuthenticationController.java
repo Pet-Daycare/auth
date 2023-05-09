@@ -19,21 +19,31 @@ import java.nio.charset.StandardCharsets;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+//@CrossOrigin(origins = "*", allowCredentials = "true")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
+//    @CrossOrigin
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register (
             @RequestBody RegisterRequest request
     ) {
         return ResponseEntity.ok(authenticationService.register(request));
     }
+
+//    @CrossOrigin
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login (
             @RequestBody AuthenticationRequest request, HttpServletResponse response
     ) {
-        return ResponseEntity.ok(authenticationService.authenticate(request, response));
+        AuthenticationResponse authResp = authenticationService.authenticate(request, response);
+        String jwtToken = authResp.getToken();
+
+        var cookie = AuthenticationController.createCookie("token", jwtToken);
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(authResp);
     }
 
     @PostMapping("/verify-token/{token}")
@@ -49,6 +59,7 @@ public class AuthenticationController {
 //    public String logout(HttpServletRequest request, HttpServletResponse response,
 //                         @CookieValue(name="token", defaultValue = "") String token)  {
     @PostMapping(path = "/logout/{token}")
+//    @CrossOrigin
     public String logout(HttpServletRequest request, HttpServletResponse response,
                          @PathVariable String token)  {
 
