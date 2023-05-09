@@ -45,18 +45,24 @@ public class AuthenticationController {
 
 
 
-    @GetMapping(path = "/logout")
+//    @PostMapping(path = "/logout")
+//    public String logout(HttpServletRequest request, HttpServletResponse response,
+//                         @CookieValue(name="token", defaultValue = "") String token)  {
+    @PostMapping(path = "/logout/{token}")
     public String logout(HttpServletRequest request, HttpServletResponse response,
-                         @CookieValue(name="token", defaultValue = "") String token)  {
+                         @PathVariable String token)  {
 
         clearAllCookies(request, response);
+
         try {
+//            return "masuk";
             authenticationService.logout(token);
         } catch (Exception e){
-
+//            return "Something happened"
         }
 
-        return "redirect:login";
+//        return "redirect:login";
+        return token + " logout jalan";
     }
 
     public static Cookie createCookie(String cookieName, String value){
