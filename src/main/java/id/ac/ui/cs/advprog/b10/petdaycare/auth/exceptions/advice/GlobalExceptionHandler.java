@@ -1,9 +1,8 @@
 package id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.advice;
 
 
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.ErrorTemplate;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UserAlreadyExistException;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UsernameAlreadyExistException;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.*;
+import io.jsonwebtoken.InvalidClaimException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +18,34 @@ import java.time.ZonedDateTime;
 public class GlobalExceptionHandler {
 
 
-    @ExceptionHandler(value = {UserAlreadyExistException.class})
-    public ResponseEntity<Object> userExist() {
+//    @ExceptionHandler(value = {UserAlreadyExistException.class})
+//    public ResponseEntity<Object> userExist() {
+//        HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+//        ErrorTemplate baseException = new ErrorTemplate(
+//                "User with the same username already exist",
+//                badRequest,
+//                ZonedDateTime.now(ZoneId.of("Z"))
+//        );
+//
+//        return new ResponseEntity<>(baseException, badRequest);
+//    }
+
+    @ExceptionHandler(value = {UsernameAlreadyExistException.class, UserAlreadyExistException.class})
+    public ResponseEntity<Object> usernameExist() {
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
         ErrorTemplate baseException = new ErrorTemplate(
-                "User with the same email already exist",
+                "User with the same username already exist",
+                badRequest,
+                ZonedDateTime.now(ZoneId.of("Z"))
+        );
+
+        return new ResponseEntity<>(baseException, badRequest);
+    }
+    @ExceptionHandler(value = {UsernameAlreadyLoggedIn.class})
+    public ResponseEntity<Object> usernameAlreadyLoggedIn() {
+        HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+        ErrorTemplate baseException = new ErrorTemplate(
+                "User already logged in",
                 badRequest,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
@@ -31,11 +53,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(baseException, badRequest);
     }
 
-    @ExceptionHandler(value = {UsernameAlreadyExistException.class})
-    public ResponseEntity<Object> usernameExist() {
+    @ExceptionHandler(value = {InvalidTokenException.class})
+    public ResponseEntity<Object> invalidToken() {
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
         ErrorTemplate baseException = new ErrorTemplate(
-                "User with the same username already exist",
+                "User token is invalid",
                 badRequest,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
