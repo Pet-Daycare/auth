@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.b10.petdaycare.auth.core;
 
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.*;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.User;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,7 +23,6 @@ public class AuthManager {
 
 
     public void registerNewToken(String token, String username){
-        // TODO
         if (tokenToUsernameMapping.containsValue(username)){
             throw new UsernameAlreadyLoggedIn();
         }
@@ -30,13 +30,11 @@ public class AuthManager {
     }
 
     public void removeToken(String token){
-        // TODO
 
         tokenToUsernameMapping.remove(token);
     }
 
     public String getUsername(String token){
-        // TODO
 
         String username = tokenToUsernameMapping.get(token);
         if(username == null){

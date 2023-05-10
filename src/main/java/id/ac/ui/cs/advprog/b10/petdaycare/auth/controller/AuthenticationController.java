@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationRequest;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationResponse;
@@ -24,6 +25,7 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
+
 //    @CrossOrigin
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register (
@@ -37,22 +39,37 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> login (
             @RequestBody AuthenticationRequest request, HttpServletResponse response
     ) {
-        AuthenticationResponse authResp = authenticationService.authenticate(request, response);
-        String jwtToken = authResp.getToken();
 
-        var cookie = AuthenticationController.createCookie("token", jwtToken);
-        response.addCookie(cookie);
+        AuthenticationResponse authResp = authenticationService.authenticate(request);
+
+        if(authResp != null){
+            String jwtToken = authResp.getToken();
+
+            var cookie = AuthenticationController.createCookie("token", jwtToken);
+            response.addCookie(cookie);
+        }
 
         return ResponseEntity.ok(authResp);
     }
 
     @PostMapping("/verify-token/{token}")
-    public ResponseEntity<User> verifyToken (
+    public ResponseEntity<String> verifyToken (
             @PathVariable String token
     ) {
+
         return ResponseEntity.ok(authenticationService.verify(token));
     }
 
+    @GetMapping("/get-token")
+    public ResponseEntity<String> getToken (
+    ) {
+        try{
+            return ResponseEntity.ok(authenticationService.getToken());
+
+        } catch (Exception e){
+            return ResponseEntity.ok("gagal bang");
+        }
+    }
 
 
 //    @PostMapping(path = "/logout")
