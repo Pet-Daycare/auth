@@ -17,8 +17,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 
 // Do not change this code
@@ -60,9 +63,10 @@ public class AuthenticationService {
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwtToken).build();
+
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
         var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
 
         authenticationManager.authenticate(
@@ -71,14 +75,36 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
+
         var jwtToken = jwtService.generateToken(user);
         authManager.registerNewToken(jwtToken, request.getUsername());
 
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-    public User verify(String token) {
-        return userRepository.findByUsername(authManager.getUsername(token)).stream().findFirst().orElse(null);
+    public String verify(String token) {
+        try{
+            return Objects.requireNonNull(userRepository.findByUsername(authManager.getUsername(token)).orElse(null)).getId().toString();
+        } catch (Exception e){
+            return "invalid token";
+        }
+//        return userRepository.findByUsername(authManager.getUsername(token)).stream().findFirst().orElse(null);
+    }
+
+//    public String getToken(User user) {
+//        return authManager.getUsernameToTokenMapping().get(user.getUsername());
+//    }
+    public String getToken() {
+//        User user = getCurrentUser();
+//        var tokens = authManager.getTokens();
+//        for(String token : tokens){
+//            if(authManager.getUsername(token).equals(user.getUsername())){
+//                return token;
+//            }
+//        }
+//        return null;
+//        return authManager.getTokens().get(0);
+        return null;
     }
 
     public void logout(String token){
@@ -88,4 +114,10 @@ public class AuthenticationService {
             authManager.removeToken(token);
         }
     }
+
+//    private static User getCurrentUser() {
+//        return ((User) SecurityContextHolder.getContext()
+//                .getAuthentication()
+//                .getPrincipal());
+//    }
 }
