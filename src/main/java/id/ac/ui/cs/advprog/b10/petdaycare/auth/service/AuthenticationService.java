@@ -4,6 +4,7 @@ package id.ac.ui.cs.advprog.b10.petdaycare.auth.service;
 
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.controller.AuthenticationController;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.core.AuthManager;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthTransactionDto;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationRequest;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationResponse;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.RegisterRequest;
@@ -82,30 +83,33 @@ public class AuthenticationService {
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-    public String verify(String token) {
+//    public String verify(String token) {
+//        try{
+//            return Objects.requireNonNull(userRepository.findByUsername(authManager.getUsername(token)).orElse(null)).getId().toString();
+//        } catch (Exception e){
+//            return "invalid";
+//        }
+//    }
+
+    public AuthTransactionDto verify(String token) {
+//        if (Objects.equals(token, "")){
+//            return new AuthTransactionDto(-1, "", "invalid");
+//        }
+
         try{
-            return Objects.requireNonNull(userRepository.findByUsername(authManager.getUsername(token)).orElse(null)).getId().toString();
+            var username = authManager.getUsername(token);
+            return AuthTransactionDto.builder()
+                    .idCustomer(Objects.requireNonNull(userRepository.findByUsername(authManager.getUsername(token)).orElse(null)).getId())
+                    .token(token)
+                    .username(username)
+                    .build();
+//            return Objects.requireNonNull(userRepository.findByUsername(authManager.getUsername(token)).orElse(null)).getId().toString();
         } catch (Exception e){
-            return "invalid token";
+            return new AuthTransactionDto(-1, "", "invalid");
         }
 //        return userRepository.findByUsername(authManager.getUsername(token)).stream().findFirst().orElse(null);
     }
 
-//    public String getToken(User user) {
-//        return authManager.getUsernameToTokenMapping().get(user.getUsername());
-//    }
-    public String getToken() {
-//        User user = getCurrentUser();
-//        var tokens = authManager.getTokens();
-//        for(String token : tokens){
-//            if(authManager.getUsername(token).equals(user.getUsername())){
-//                return token;
-//            }
-//        }
-//        return null;
-//        return authManager.getTokens().get(0);
-        return null;
-    }
 
     public void logout(String token){
         if(authManager.getUsername(token) == null){
@@ -115,9 +119,4 @@ public class AuthenticationService {
         }
     }
 
-//    private static User getCurrentUser() {
-//        return ((User) SecurityContextHolder.getContext()
-//                .getAuthentication()
-//                .getPrincipal());
-//    }
 }

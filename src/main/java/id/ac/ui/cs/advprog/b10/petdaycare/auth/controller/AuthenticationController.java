@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.b10.petdaycare.auth.controller;
 
 
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthTransactionDto;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,24 +53,20 @@ public class AuthenticationController {
         return ResponseEntity.ok(authResp);
     }
 
-    @PostMapping("/verify-token/{token}")
-    public ResponseEntity<String> verifyToken (
-            @PathVariable String token
+    @GetMapping("/verify-token/{token}")
+    public ResponseEntity<AuthTransactionDto> verifyToken (
+            @PathVariable String token, HttpServletRequest request
     ) {
 
         return ResponseEntity.ok(authenticationService.verify(token));
     }
-
-    @GetMapping("/get-token")
-    public ResponseEntity<String> getToken (
-    ) {
-        try{
-            return ResponseEntity.ok(authenticationService.getToken());
-
-        } catch (Exception e){
-            return ResponseEntity.ok("gagal bang");
-        }
-    }
+//    @GetMapping("/verify-token/{token}")
+//    public ResponseEntity<String> verifyToken (
+//            @PathVariable String token, HttpServletRequest request
+//    ) {
+//
+//        return ResponseEntity.ok(authenticationService.verify(token));
+//    }
 
 
 //    @PostMapping(path = "/logout")
