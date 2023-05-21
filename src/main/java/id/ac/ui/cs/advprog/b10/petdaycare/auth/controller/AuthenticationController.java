@@ -29,7 +29,7 @@ public class AuthenticationController {
 
 //    @CrossOrigin
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register (
+    public ResponseEntity<User> register (
             @RequestBody RegisterRequest request
     ) {
         return ResponseEntity.ok(authenticationService.register(request));
@@ -83,7 +83,7 @@ public class AuthenticationController {
 //            return "masuk";
             authenticationService.logout(token);
         } catch (Exception e){
-//            return "Something happened"
+            return "Something happened";
         }
 
 //        return "redirect:login";

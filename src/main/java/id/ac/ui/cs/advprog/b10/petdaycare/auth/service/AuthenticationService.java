@@ -39,7 +39,9 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(RegisterRequest request) {
+    public User register(RegisterRequest request) {
+
+
         var checkUser = userRepository.findByEmail(request.getEmail()).orElse(null);
 
         if(checkUser != null) {
@@ -62,8 +64,8 @@ public class AuthenticationService {
                 .petWallet(new PetWallet())
                 .build();
         userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+
+        return user;
 
     }
 
@@ -81,6 +83,7 @@ public class AuthenticationService {
         authManager.registerNewToken(jwtToken, request.getUsername());
 
         return AuthenticationResponse.builder().token(jwtToken).build();
+//        return null;
     }
 
 //    public String verify(String token) {
@@ -91,7 +94,7 @@ public class AuthenticationService {
 //        }
 //    }
 
-    public AuthTransactionDto verify(String token) {
+    public AuthTransactionDto verify(String token){
 //        if (Objects.equals(token, "")){
 //            return new AuthTransactionDto(-1, "", "invalid");
 //        }
@@ -105,7 +108,8 @@ public class AuthenticationService {
                     .build();
 //            return Objects.requireNonNull(userRepository.findByUsername(authManager.getUsername(token)).orElse(null)).getId().toString();
         } catch (Exception e){
-            return new AuthTransactionDto(-1, "", "invalid");
+            throw new InvalidTokenException();
+//            return new AuthTransactionDto(-1, "", "invalid");
         }
 //        return userRepository.findByUsername(authManager.getUsername(token)).stream().findFirst().orElse(null);
     }
