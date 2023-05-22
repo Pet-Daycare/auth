@@ -48,6 +48,8 @@ public class AuthenticationController {
 
             var cookie = AuthenticationController.createCookie("token", jwtToken);
             response.addCookie(cookie);
+        } else {
+            return ResponseEntity.badRequest().body(null);
         }
 
         return ResponseEntity.ok(authResp);
@@ -99,7 +101,7 @@ public class AuthenticationController {
         return cookie;
     }
 
-    private static void clearAllCookies(HttpServletRequest request, HttpServletResponse response){
+    static void clearAllCookies(HttpServletRequest request, HttpServletResponse response){
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {

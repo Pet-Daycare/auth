@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -70,20 +71,23 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+        try {
+            var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
 
-        var jwtToken = jwtService.generateToken(user);
-        authManager.registerNewToken(jwtToken, request.getUsername());
+            var jwtToken = jwtService.generateToken(user);
+            authManager.registerNewToken(jwtToken, request.getUsername());
 
-        return AuthenticationResponse.builder().token(jwtToken).build();
-//        return null;
+            return AuthenticationResponse.builder().token(jwtToken).build();
+        } catch (Exception UsernameNotFoundException) {
+            throw new UsernameNotFoundException("Invalid username or password");
+        }
     }
 
 //    public String verify(String token) {
@@ -107,7 +111,7 @@ public class AuthenticationService {
                     .username(username)
                     .build();
 //            return Objects.requireNonNull(userRepository.findByUsername(authManager.getUsername(token)).orElse(null)).getId().toString();
-        } catch (Exception e){
+        } catch (Exception InvalidTokenException){
             throw new InvalidTokenException();
 //            return new AuthTransactionDto(-1, "", "invalid");
         }
