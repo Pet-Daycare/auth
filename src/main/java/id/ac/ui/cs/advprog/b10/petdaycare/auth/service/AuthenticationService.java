@@ -2,7 +2,6 @@ package id.ac.ui.cs.advprog.b10.petdaycare.auth.service;
 
 
 
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.controller.AuthenticationController;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.core.AuthManager;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthTransactionDto;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationRequest;
@@ -11,14 +10,15 @@ import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.RegisterRequest;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.InvalidTokenException;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UserAlreadyExistException;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UsernameAlreadyExistException;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.PetWallet;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UsernameAlreadyLoggedIn;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.Token;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.TokenType;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.User;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.repository.TokenRepository;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.repository.UserRepository;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,12 +26,13 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 
-// Do not change this code
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
 
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     private final JwtService jwtService;
@@ -41,8 +42,6 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public User register(RegisterRequest request) {
-
-
         var checkUser = userRepository.findByEmail(request.getEmail()).orElse(null);
 
         if(checkUser != null) {
@@ -55,19 +54,30 @@ public class AuthenticationService {
         }
 
         var user = User.builder()
-                .firstname(request.getFirstname())
-                .lastname(request.getLastname())
+                .fullName(request.getFullName())
                 .username(request.getUsername())
                 .active(true)
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
-                .petWallet(new PetWallet())
                 .build();
-        userRepository.save(user);
+        var savedUser = userRepository.save(user);
+        var jwtToken = jwtService.generateToken(user);
+        saveUserToken(savedUser, jwtToken);
 
         return user;
 
+    }
+
+    private void saveUserToken(User user, String jwtToken) {
+        var token = Token.builder()
+                .user(user)
+                .tokenString(jwtToken)
+                .tokenType(TokenType.BEARER)
+                .expired(false)
+                .revoked(false)
+                .build();
+        tokenRepository.save(token);
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -84,25 +94,30 @@ public class AuthenticationService {
             var jwtToken = jwtService.generateToken(user);
             authManager.registerNewToken(jwtToken, request.getUsername());
 
+            revokeAllUserTokens(user);
+            saveUserToken(user, jwtToken);
+
             return AuthenticationResponse.builder().token(jwtToken).build();
-        } catch (Exception UsernameNotFoundException) {
+        } catch(UsernameAlreadyLoggedIn e){
+            throw new UsernameNotFoundException("Username of this user already login!");
+        } catch (Exception e) {
             throw new UsernameNotFoundException("Invalid username or password");
         }
     }
 
-//    public String verify(String token) {
-//        try{
-//            return Objects.requireNonNull(userRepository.findByUsername(authManager.getUsername(token)).orElse(null)).getId().toString();
-//        } catch (Exception e){
-//            return "invalid";
-//        }
-//    }
+    private void revokeAllUserTokens(User user){
+        var validUserToken = tokenRepository.findAllValidTokensByUser(user.getId().toString());
+        if (validUserToken.isEmpty()){
+            return;
+        }
+        validUserToken.forEach(t -> {
+            t.setExpired(true);
+            t.setRevoked(true);
+        });
+        tokenRepository.saveAll(validUserToken);
+    }
 
     public AuthTransactionDto verify(String token){
-//        if (Objects.equals(token, "")){
-//            return new AuthTransactionDto(-1, "", "invalid");
-//        }
-
         try{
             var username = authManager.getUsername(token);
             return AuthTransactionDto.builder()
@@ -110,12 +125,9 @@ public class AuthenticationService {
                     .token(token)
                     .username(username)
                     .build();
-//            return Objects.requireNonNull(userRepository.findByUsername(authManager.getUsername(token)).orElse(null)).getId().toString();
-        } catch (Exception InvalidTokenException){
+        } catch (InvalidTokenException e){
             throw new InvalidTokenException();
-//            return new AuthTransactionDto(-1, "", "invalid");
         }
-//        return userRepository.findByUsername(authManager.getUsername(token)).stream().findFirst().orElse(null);
     }
 
 
@@ -123,6 +135,13 @@ public class AuthenticationService {
         if(authManager.getUsername(token) == null){
             throw new InvalidTokenException();
         } else {
+            var storedToken = tokenRepository.findByTokenString(token).orElse(null);
+            if(storedToken != null){
+                storedToken.setExpired(true);
+                storedToken.setRevoked(true);
+                tokenRepository.save(storedToken);
+            }
+
             authManager.removeToken(token);
         }
     }

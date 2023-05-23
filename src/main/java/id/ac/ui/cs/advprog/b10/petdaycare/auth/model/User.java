@@ -1,7 +1,5 @@
 package id.ac.ui.cs.advprog.b10.petdaycare.auth.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.Pet;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,9 +22,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue
     private Integer id;
-    private String firstname;
-    private String lastname;
-
+    private String fullName;
     private String password;
 
     @Column(unique = true)
@@ -38,16 +34,9 @@ public class User implements UserDetails {
 
     private String role;
 
-    private boolean active;
-
-    @JsonManagedReference
     @OneToMany(mappedBy = "user")
-    private List<Pet> pets;
-
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "petwallet_id", referencedColumnName = "id")
-    private PetWallet petWallet;
+    private transient List<Token> tokens;
+    private boolean active;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -67,9 +56,6 @@ public class User implements UserDetails {
     public String getUsername() {
         return username;
     }
-
-    public PetWallet getPetWallet() {return this.petWallet;}
-
     @Override
     public boolean isAccountNonExpired() {
         return this.active;

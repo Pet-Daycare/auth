@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.b10.petdaycare.auth.config;
 
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.repository.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,13 +19,14 @@ import id.ac.ui.cs.advprog.b10.petdaycare.auth.service.JwtService;
 import java.io.IOException;
 
 
-// Do not change this code
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+
+    private final TokenRepository tokenRepository;
 
 
     private static final String JWT_HEADER = "Authorization";
@@ -50,8 +52,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-
-            if (jwtService.isTokenValid(jwtToken, userDetails)) {
+            boolean isTokenValid =tokenRepository.findByTokenString(jwtToken)
+                    .map(t -> (!t.isExpired() && !t.isRevoked())).orElse(false);
+            if (jwtService.isTokenValid(jwtToken, userDetails) && isTokenValid) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
