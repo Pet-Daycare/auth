@@ -11,12 +11,12 @@ import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GlobalExceptionHandlerTest {
+ class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
 
     @Test
-    public void testUsernameExist() {
+     void testUsernameExist() {
         ResponseEntity<Object> response = globalExceptionHandler.usernameExist();
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -27,7 +27,7 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void testUsernameAlreadyLoggedIn() {
+     void testUsernameAlreadyLoggedIn() {
         ResponseEntity<Object> response = globalExceptionHandler.usernameAlreadyLoggedIn();
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -38,7 +38,7 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void testInvalidToken() {
+     void testInvalidToken() {
         ResponseEntity<Object> response = globalExceptionHandler.invalidToken();
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -49,7 +49,7 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void testCredentialsError() {
+     void testCredentialsError() {
         String errorMessage = "Invalid credentials";
         ResponseEntity<Object> response = globalExceptionHandler.credentialsError(new RuntimeException(errorMessage));
 
@@ -61,7 +61,7 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void testGeneralError() {
+     void testGeneralError() {
         String errorMessage = "Something went wrong";
         ResponseEntity<Object> response = globalExceptionHandler.generalError(new RuntimeException(errorMessage));
 

@@ -15,16 +15,13 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import static org.mockito.Mockito.*;
 
-class JwtAuthenticationFilterTest {
+ class JwtAuthenticationFilterTest {
 
     @Mock
     private JwtService jwtService;
 
     @Mock
     private UserDetailsService userDetailsService;
-
-    @Mock
-    private TokenRepository tokenRepository;
 
     @Mock
     private HttpServletRequest request;
@@ -36,6 +33,9 @@ class JwtAuthenticationFilterTest {
     private FilterChain filterChain;
 
     private JwtAuthenticationFilter authenticationFilter;
+
+    @Mock
+    private TokenRepository tokenRepository;
 
     @BeforeEach
     public void setUp() {

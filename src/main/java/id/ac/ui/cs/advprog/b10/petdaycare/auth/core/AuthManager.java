@@ -1,9 +1,7 @@
 package id.ac.ui.cs.advprog.b10.petdaycare.auth.core;
 
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.*;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.User;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;

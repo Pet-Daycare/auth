@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class AuthenticationControllerTest {
+ class AuthenticationControllerTest {
 
     private MockMvc mockMvc;
 
@@ -44,7 +44,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void testRegister() throws Exception {
+     void testRegister() throws Exception {
         RegisterRequest registerRequest = new RegisterRequest();
         // Set up the registerRequest object
 
@@ -63,7 +63,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void testLogin() throws Exception {
+     void testLogin() throws Exception {
         AuthenticationRequest authenticationRequest = new AuthenticationRequest("username", "password");
         // Set up the authenticationRequest object
 
@@ -87,7 +87,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void testVerifyToken() throws Exception {
+     void testVerifyToken() throws Exception {
         String token = "example_token";
 
         AuthTransactionDto authTransactionDto = new AuthTransactionDto();
@@ -100,7 +100,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void testLogout() throws Exception {
+     void testLogout() throws Exception {
         String token = "example_token";
 
         mockMvc.perform(post("/api/v1/auth/logout/{token}", token))
@@ -117,7 +117,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void testCreateCookie() {
+    void testCreateCookie() {
         // Arrange
         String cookieName = "token";
         String value = "jwtToken";
@@ -139,7 +139,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void testClearAllCookies() {
+    void testClearAllCookies() {
         // Arrange
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);

@@ -17,17 +17,17 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JwtServiceTest {
+ class JwtServiceTest {
 
     private JwtService jwtService;
 
     @BeforeEach
-    public void setup() {
+     void setup() {
         jwtService = new JwtService();
     }
 
     @Test
-    public void testGenerateTokenAndExtractUsername() {
+     void testGenerateTokenAndExtractUsername() {
         UserDetails userDetails = getUserDetails();
         String token = jwtService.generateToken(userDetails);
         String username = jwtService.extractUsername(token);
@@ -36,7 +36,7 @@ public class JwtServiceTest {
     }
 
     @Test
-    public void testGenerateTokenWithExtraClaims() {
+     void testGenerateTokenWithExtraClaims() {
         UserDetails userDetails = getUserDetails();
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", "admin");
@@ -49,7 +49,7 @@ public class JwtServiceTest {
     }
 
     @Test
-    public void testIsTokenValid() {
+     void testIsTokenValid() {
         UserDetails userDetails = getUserDetails();
         String token = jwtService.generateToken(userDetails);
 
@@ -57,7 +57,7 @@ public class JwtServiceTest {
     }
 
     @Test
-    public void testIsTokenExpired() {
+     void testIsTokenExpired() {
         UserDetails userDetails = getUserDetails();
         String expiredToken = generateExpiredToken(userDetails);
 

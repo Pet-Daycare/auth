@@ -19,10 +19,12 @@ import id.ac.ui.cs.advprog.b10.petdaycare.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 
@@ -106,9 +108,9 @@ public class AuthenticationService {
 
             return AuthenticationResponse.builder().token(jwtToken).build();
         } catch(UsernameAlreadyLoggedIn e){
-            throw new UsernameNotFoundException("Username of this user already login!");
-        } catch (Exception e) {
-            throw new UsernameNotFoundException("Invalid username or password");
+            throw new UsernameAlreadyLoggedIn();
+        } catch(NoSuchElementException e){
+            throw new UsernameDoesNotExist();
         }
     }
 

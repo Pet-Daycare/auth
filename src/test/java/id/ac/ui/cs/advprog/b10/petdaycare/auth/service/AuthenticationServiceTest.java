@@ -7,6 +7,7 @@ import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.RegisterRequest;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.InvalidTokenException;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UserAlreadyExistException;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UsernameAlreadyExistException;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UsernameDoesNotExist;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.User;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.repository.TokenRepository;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.repository.UserRepository;
@@ -152,7 +153,7 @@ class AuthenticationServiceTest {
 
         when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> authenticationService.authenticate(request));
+        assertThrows(UsernameDoesNotExist.class, () -> authenticationService.authenticate(request));
 
         verify(userRepository).findByUsername(request.getUsername());
         verifyNoInteractions(jwtService);

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AuthManagerTest {
+ class AuthManagerTest {
 
     private AuthManager authManager;
 
@@ -17,7 +17,7 @@ public class AuthManagerTest {
     }
 
     @Test
-    public void testRegisterNewToken() {
+     void testRegisterNewToken() {
         // Arrange
         String token = "token123";
         String username = "testRegisterNewToken";
@@ -44,7 +44,7 @@ public class AuthManagerTest {
     }
 
     @Test
-    public void testRemoveToken() {
+     void testRemoveToken() {
         // Arrange
         String token = "token123";
         String username = "testRemoveToken";
@@ -58,7 +58,7 @@ public class AuthManagerTest {
     }
 
     @Test
-    public void testGetUsername() {
+     void testGetUsername() {
         // Arrange
         String token = "token123";
         String username = "testGetUsername";
@@ -72,7 +72,7 @@ public class AuthManagerTest {
     }
 
     @Test
-    public void testGetUsername_ThrowsInvalidTokenException() {
+     void testGetUsername_ThrowsInvalidTokenException() {
         // Arrange
         String token = "invalid_token";
 
