@@ -1,13 +1,12 @@
 package id.ac.ui.cs.advprog.b10.petdaycare.auth.config;
 
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.config.JwtAuthenticationFilter;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.repository.TokenRepository;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,13 +15,16 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import static org.mockito.Mockito.*;
 
-public class JwtAuthenticationFilterTest {
+class JwtAuthenticationFilterTest {
 
     @Mock
     private JwtService jwtService;
 
     @Mock
     private UserDetailsService userDetailsService;
+
+    @Mock
+    private TokenRepository tokenRepository;
 
     @Mock
     private HttpServletRequest request;
@@ -38,11 +40,11 @@ public class JwtAuthenticationFilterTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        authenticationFilter = new JwtAuthenticationFilter(jwtService, userDetailsService);
+        authenticationFilter = new JwtAuthenticationFilter(jwtService, userDetailsService, tokenRepository);
     }
 
     @Test
-    public void testDoFilterInternal_WithoutAuthorizationHeader_ShouldContinueFilterChain() throws Exception {
+    void testDoFilterInternal_WithoutAuthorizationHeader_ShouldContinueFilterChain() throws Exception {
         // Arrange
         when(request.getHeader("Authorization")).thenReturn(null);
 
@@ -54,7 +56,7 @@ public class JwtAuthenticationFilterTest {
     }
 
     @Test
-    public void testDoFilterInternal_WithInvalidAuthorizationHeader_ShouldContinueFilterChain() throws Exception {
+    void testDoFilterInternal_WithInvalidAuthorizationHeader_ShouldContinueFilterChain() throws Exception {
         // Arrange
         when(request.getHeader("Authorization")).thenReturn("InvalidToken");
 
@@ -68,7 +70,7 @@ public class JwtAuthenticationFilterTest {
     // Add more test cases to cover other scenarios of doFilterInternal() method
 
     @Test
-    public void testDoFilterInternal_WithValidAuthorizationHeader_ShouldAuthenticateUser() throws Exception {
+    void testDoFilterInternal_WithValidAuthorizationHeader_ShouldAuthenticateUser() throws Exception {
         // Arrange
         String validJwtToken = "ValidJwtToken";
         String userEmail = "test@example.com";

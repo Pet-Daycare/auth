@@ -1,7 +1,5 @@
 package id.ac.ui.cs.advprog.b10.petdaycare.auth.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,10 +11,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "petwallet")
-public class PetWallet {
+public class Token {
     @Id
     @GeneratedValue
     private Integer id;
-    private int balance;
+
+    private String tokenString;
+
+    @Enumerated(EnumType.STRING)
+    private TokenType tokenType;
+
+    private boolean expired;
+    private boolean revoked;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

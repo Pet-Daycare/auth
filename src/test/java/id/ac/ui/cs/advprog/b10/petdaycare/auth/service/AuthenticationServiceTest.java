@@ -1,19 +1,15 @@
 package id.ac.ui.cs.advprog.b10.petdaycare.auth.service;
 
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.controller.AuthenticationController;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.core.AuthManager;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthTransactionDto;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationRequest;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationResponse;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.RegisterRequest;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.InvalidTokenException;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UserAlreadyExistException;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UsernameAlreadyExistException;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.PetWallet;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.User;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.repository.TokenRepository;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.repository.UserRepository;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.service.AuthenticationService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -46,17 +42,19 @@ class AuthenticationServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @Mock
+    private TokenRepository tokenRepository;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        authenticationService = new AuthenticationService(userRepository, passwordEncoder, jwtService, authenticationManager);
+        authenticationService = new AuthenticationService(userRepository, tokenRepository, passwordEncoder, jwtService, authenticationManager);
     }
 
     @Test
     void testRegisterSuccess() {
         RegisterRequest request = new RegisterRequest();
-        request.setFirstname("John");
-        request.setLastname("Doe");
+        request.setFullName("John Doe");
         request.setUsername("johndoe");
         request.setEmail("johndoe@example.com");
         request.setPassword("password");
@@ -66,21 +64,18 @@ class AuthenticationServiceTest {
         when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.empty());
 
         User savedUser = User.builder()
-                .firstname(request.getFirstname())
-                .lastname(request.getLastname())
+                .fullName(request.getFullName())
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password("encodedPassword")
                 .role(request.getRole())
-                .petWallet(new PetWallet())
                 .build();
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
         User registeredUser = authenticationService.register(request);
 
         assertNotNull(registeredUser);
-        assertEquals(request.getFirstname(), registeredUser.getFirstname());
-        assertEquals(request.getLastname(), registeredUser.getLastname());
+        assertEquals(request.getFullName(), registeredUser.getFullName());
         assertEquals(request.getUsername(), registeredUser.getUsername());
         assertEquals(request.getEmail(), registeredUser.getEmail());
         assertEquals(request.getRole(), registeredUser.getRole());
@@ -131,6 +126,7 @@ class AuthenticationServiceTest {
         User user = User.builder()
                 .username(request.getUsername())
                 .password("encodedPassword")
+                .id(1)
                 .build();
         when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.of(user));
 

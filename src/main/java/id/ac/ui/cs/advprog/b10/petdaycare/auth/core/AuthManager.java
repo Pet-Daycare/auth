@@ -19,7 +19,7 @@ public class AuthManager {
     }
 
     @Getter
-    private Map<String, String> tokenToUsernameMapping = new HashMap<>();
+    private final Map<String, String> tokenToUsernameMapping = new HashMap<>();
 
 
     public void registerNewToken(String token, String username){
@@ -35,7 +35,6 @@ public class AuthManager {
     }
 
     public String getUsername(String token){
-
         String username = tokenToUsernameMapping.get(token);
         if(username == null){
             throw new InvalidTokenException();
