@@ -7,10 +7,10 @@ import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthTransactionDto;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationRequest;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationResponse;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.RegisterRequest;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.InvalidTokenException;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UserAlreadyExistException;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UsernameAlreadyExistException;
-import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.UsernameAlreadyLoggedIn;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.*;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.factory.AdminFactory;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.factory.CustomerFactory;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.factory.FactoryUser;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.Token;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.TokenType;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.User;
@@ -41,6 +41,8 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
 
+    private FactoryUser factoryUser;
+
     public User register(RegisterRequest request) {
         var checkUser = userRepository.findByEmail(request.getEmail()).orElse(null);
 
@@ -53,14 +55,19 @@ public class AuthenticationService {
             throw new UsernameAlreadyExistException();
         }
 
-        var user = User.builder()
-                .fullName(request.getFullName())
-                .username(request.getUsername())
-                .active(true)
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
-                .build();
+        User user;
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        if(Objects.equals(request.getRole(), "USER")){
+            factoryUser = new CustomerFactory();
+        } else if("ADMIN".equals(request.getRole())){
+            factoryUser = new AdminFactory();
+        } else {
+            throw new UserRoleRegisterException();
+        }
+
+        user = factoryUser.createUser(request);
+
         var savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         saveUserToken(savedUser, jwtToken);
