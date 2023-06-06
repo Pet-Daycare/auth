@@ -20,7 +20,8 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "Template_SEQ", allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "Template_SEQ")
     private Integer id;
     private String fullName;
     private String password;
