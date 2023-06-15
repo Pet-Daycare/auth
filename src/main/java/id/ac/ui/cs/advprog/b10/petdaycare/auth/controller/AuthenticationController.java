@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.b10.petdaycare.auth.controller;
 
 
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthTransactionDto;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.InvalidTokenException;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -64,7 +65,7 @@ public class AuthenticationController {
                          @PathVariable String token)  {
         try {
             authenticationService.logout(token);
-        } catch (Exception e){
+        } catch (InvalidTokenException e){
             return "Something happened";
         }
 

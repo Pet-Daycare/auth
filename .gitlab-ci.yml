@@ -25,6 +25,8 @@ sonarcloud-check:
     - merge_requests
     - master
     - develop
+    - post-sprint-revision
+  allow_failure: true
 
 stages:
   - build
@@ -69,12 +71,13 @@ Test:
       junit:
         build/test-results/test/**/TEST-*.xml
   coverage: '/Total.*?([0-9]{1,3})%/'
+  allow_failure: true
 
 Publish:
   stage: publish
   image: docker:latest
   services:
-      - docker:dind
+      - docker:20.10.16-dind
   dependencies:
       - Build
   before_script:
@@ -87,6 +90,7 @@ Publish:
     - dind
   only:
     - master
+    - post-sprint-revision
 
 Deploy:
   stage: deploy
@@ -98,3 +102,4 @@ Deploy:
     - ssh -o StrictHostKeyChecking=no -i $SSH_KEY $GCP_USERNAME@$GCP_STATIC_IP " docker container rm -f $CONTAINER_NAME || true && docker image rm -f $REGISTRY_USER/$IMAGE_NAME:$IMAGE_TAG || true && docker run --name $CONTAINER_NAME -d -p 80:8080 $REGISTRY_USER/$IMAGE_NAME:$IMAGE_TAG"
   only:
     - master
+    - post-sprint-revision

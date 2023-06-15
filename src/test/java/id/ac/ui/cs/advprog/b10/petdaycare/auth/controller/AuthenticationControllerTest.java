@@ -1,10 +1,12 @@
 package id.ac.ui.cs.advprog.b10.petdaycare.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.core.AuthManager;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthTransactionDto;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationRequest;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.AuthenticationResponse;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.dto.RegisterRequest;
+import id.ac.ui.cs.advprog.b10.petdaycare.auth.exceptions.InvalidTokenException;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.model.User;
 import id.ac.ui.cs.advprog.b10.petdaycare.auth.service.AuthenticationService;
 import jakarta.servlet.http.Cookie;
@@ -37,11 +39,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     @Mock
     private AuthenticationService authenticationService;
 
-    @BeforeEach
+     @Mock
+     private AuthManager authManager;
+
+     private AuthenticationController authenticationController;
+     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(new AuthenticationController(authenticationService)).build();
+        authenticationController = new AuthenticationController(authenticationService);
     }
+
 
     @Test
      void testRegister() throws Exception {
@@ -67,24 +75,38 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         AuthenticationRequest authenticationRequest = new AuthenticationRequest("username", "password");
         // Set up the authenticationRequest object
 
+        when(authenticationService.authenticate(any(AuthenticationRequest.class))).thenReturn(new AuthenticationResponse("jwtToken"));
+
         AuthenticationResponse authenticationResponse = authenticationService.authenticate(authenticationRequest);
         // Set up the authenticationResponse object
 
         when(authenticationService.authenticate(any(AuthenticationRequest.class))).thenReturn(authenticationResponse);
 
-        if (authenticationResponse == null) {
-            mockMvc.perform(post("/api/v1/auth/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(asJsonString(authenticationRequest)))
-                    .andExpect(status().isBadRequest());
-        } else {
-            mockMvc.perform(post("/api/v1/auth/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(asJsonString(authenticationRequest)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.token").value(authenticationResponse.getToken()));
-        }
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(authenticationRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value(authenticationResponse.getToken()));
+
     }
+
+     @Test
+     void testLoginAuthResponseIsNull() throws Exception {
+         AuthenticationRequest authenticationRequest = new AuthenticationRequest("username", "password");
+         // Set up the authenticationRequest object
+
+         AuthenticationResponse authenticationResponse = authenticationService.authenticate(authenticationRequest);
+         // Set up the authenticationResponse object
+
+         when(authenticationService.authenticate(any(AuthenticationRequest.class))).thenReturn(null);
+
+         if (authenticationResponse == null) {
+             mockMvc.perform(post("/api/v1/auth/login")
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .content(asJsonString(authenticationRequest)))
+                     .andExpect(status().isBadRequest());
+         }
+     }
 
     @Test
      void testVerifyToken() throws Exception {
@@ -107,6 +129,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 .andExpect(status().isOk())
                 .andExpect(content().string(token + " logout jalan"));
     }
+
+     @Test
+     void logout_WithException_ShouldReturnErrorMessage() throws Exception {
+         String token = "jwtToken";
+         Exception exception = new InvalidTokenException();
+
+         doThrow(exception).when(authenticationService).logout(token);
+
+//         String result = authenticationController.logout(request, response, token);
+
+//         verify(authenticationService).logout(token);
+
+         mockMvc.perform(post("/api/v1/auth/logout/{token}", token))
+                 .andExpect(status().isOk())
+                 .andExpect(content().string("Something happened"));
+
+//         assertEquals("Something happened", result);
+     }
 
     private static String asJsonString(Object obj) {
         try {
